@@ -8,7 +8,7 @@ type Aperture interface {
 	// Next returns next selected item.
 	Next() (interface{}, func(balancer.DoneInfo))
 	// Set logical width
-	SetLogicalWidth(width int)
+	SetLogicalWidth(int)
 	// Set local peer id
 	SetLocalPeerID(string)
 	// Set local peers.
@@ -20,6 +20,6 @@ type Aperture interface {
 type P2C interface {
 	// Next returns next selected item.
 	Next() (interface{}, func(balancer.DoneInfo))
-	// Add a item.
+	// Add a weighted item.
 	Add(interface{}, float64)
 }
