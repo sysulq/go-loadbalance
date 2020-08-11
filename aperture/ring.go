@@ -78,6 +78,7 @@ func (r *Ring) Weight(index int, offset, width float64) float64 {
 	}
 
 	ae := ab + r.unitWidth
+
 	return intersect(ab, ae, offset, offset+width) / r.unitWidth
 }
 
