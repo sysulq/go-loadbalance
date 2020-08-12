@@ -1,7 +1,6 @@
 package aperture
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/hnlq715/go-loadbalance"
@@ -93,7 +92,6 @@ func (a *Aperture) rebuild() {
 
 	for _, aoertureIdx := range apertureIdxes {
 		weight := ring.Weight(aoertureIdx, offset, apertureWidth)
-		fmt.Println(aoertureIdx, offset, weight, apertureWidth)
 		a.p2c.Add(a.remotePeers[aoertureIdx], weight)
 	}
 }
