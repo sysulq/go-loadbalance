@@ -34,6 +34,7 @@ func TestAperture(t *testing.T) {
 		ll.SetLocalPeers([]string{"1", "2", "3"})
 		ll.SetRemotePeers([]interface{}{"8", "9", "10"})
 		ll.SetLocalPeerID("1")
+		ll.SetLogicalAperture(1)
 
 		item, done := ll.Next()
 		done(balancer.DoneInfo{})
@@ -57,7 +58,7 @@ func TestAperture(t *testing.T) {
 		ll.SetLocalPeers([]string{"1", "2", "3"})
 		ll.SetRemotePeers([]interface{}{"8", "9", "10", "11", "12"})
 		ll.SetLocalPeerID("1")
-		ll.SetLogicalWidth(2)
+		ll.SetLogicalAperture(2)
 
 		countMap := make(map[interface{}]int)
 

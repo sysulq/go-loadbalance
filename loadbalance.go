@@ -7,8 +7,8 @@ import (
 type Aperture interface {
 	// Next returns next selected item.
 	Next() (interface{}, func(balancer.DoneInfo))
-	// Set logical width
-	SetLogicalWidth(int)
+	// Set logical aperture
+	SetLogicalAperture(int)
 	// Set local peer id
 	SetLocalPeerID(string)
 	// Set local peers.

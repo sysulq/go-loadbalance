@@ -1,6 +1,7 @@
 package aperture
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/hnlq715/go-loadbalance"
@@ -9,32 +10,34 @@ import (
 )
 
 type Aperture struct {
-	localID       string
-	localPeers    []string
-	localPeersMap map[string]int
-	remotePeers   []interface{}
-	logicalWidth  int
+	localID         string
+	localPeers      []string
+	localPeersMap   map[string]int
+	remotePeers     []interface{}
+	logicalAperture int
 
 	p2c loadbalance.P2C
 }
 
 const (
-	defaultLogicalWidth int = 1
+	defaultLogicalAperture int = 12
 )
 
 func New() loadbalance.Aperture {
 	return &Aperture{
-		logicalWidth:  defaultLogicalWidth,
-		localPeers:    make([]string, 0),
-		localPeersMap: make(map[string]int),
-		remotePeers:   make([]interface{}, 0),
-		p2c:           leastloaded.New(),
+		logicalAperture: defaultLogicalAperture,
+		localPeers:      make([]string, 0),
+		localPeersMap:   make(map[string]int),
+		remotePeers:     make([]interface{}, 0),
+		p2c:             leastloaded.New(),
 	}
 }
 
-func (a *Aperture) SetLogicalWidth(width int) {
-	a.logicalWidth = width
-	a.rebuild()
+func (a *Aperture) SetLogicalAperture(width int) {
+	if width > 0 {
+		a.logicalAperture = width
+		a.rebuild()
+	}
 }
 
 func (a *Aperture) SetLocalPeerID(id string) {
@@ -77,17 +80,21 @@ func (a *Aperture) rebuild() {
 	localWidth := floatOne / float64(len(a.localPeers))
 	remoteWidth := floatOne / float64(len(a.remotePeers))
 
-	width := dApertureWidth(localWidth, remoteWidth, a.logicalWidth)
+	if a.logicalAperture > len(a.remotePeers) {
+		a.logicalAperture = len(a.remotePeers)
+	}
 
-	offset := float64(idx) * width
+	apertureWidth := dApertureWidth(localWidth, remoteWidth, a.logicalAperture)
+	offset := float64(idx) * apertureWidth
 
 	ring := NewRing(len(a.remotePeers))
-	idxes := ring.Slice(offset, width)
+	apertureIdxes := ring.Slice(offset, apertureWidth)
 	a.p2c = leastloaded.New()
 
-	for _, idx := range idxes {
-		weight := ring.Weight(idx, offset, width)
-		a.p2c.Add(a.remotePeers[idx], weight)
+	for _, aoertureIdx := range apertureIdxes {
+		weight := ring.Weight(aoertureIdx, offset, apertureWidth)
+		fmt.Println(aoertureIdx, offset, weight, apertureWidth)
+		a.p2c.Add(a.remotePeers[aoertureIdx], weight)
 	}
 }
 
