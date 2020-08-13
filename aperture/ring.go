@@ -25,31 +25,35 @@ func (r *Ring) Range(offset, width float64) int {
 	begin := r.Index(offset)
 	end := r.Index(math.Mod(offset+width, 1.0))
 
-	if begin == end && width > r.unitWidth {
-		return r.size
-	} else if begin == end {
-		return intOne
+	if width < 1.0 {
+		if begin == end && width > r.unitWidth {
+			return r.size
+		} else if begin == end {
+			return intOne
+		}
+
+		beginWeight := r.Weight(begin, offset, width)
+		endWeight := r.Weight(end, offset, width)
+
+		adjustedBegin := begin
+		if beginWeight <= 0 {
+			adjustedBegin++
+		}
+
+		adjustedEnd := end
+		if endWeight > 0 {
+			adjustedEnd++
+		}
+
+		diff := adjustedEnd - adjustedBegin
+		if diff <= 0 {
+			return diff + r.size
+		}
+
+		return diff
 	}
 
-	beginWeight := r.Weight(begin, offset, width)
-	endWeight := r.Weight(end, offset, width)
-
-	adjustedBegin := begin
-	if beginWeight <= 0 {
-		adjustedBegin++
-	}
-
-	adjustedEnd := end
-	if endWeight > 0 {
-		adjustedEnd++
-	}
-
-	diff := adjustedEnd - adjustedBegin
-	if diff < 0 {
-		return diff + r.size
-	}
-
-	return diff
+	return r.size
 }
 
 func (r *Ring) Slice(offset, width float64) []int {

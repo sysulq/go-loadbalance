@@ -90,9 +90,9 @@ func (a *Aperture) rebuild() {
 	apertureIdxes := ring.Slice(offset, apertureWidth)
 	a.p2c = leastloaded.New()
 
-	for _, aoertureIdx := range apertureIdxes {
-		weight := ring.Weight(aoertureIdx, offset, apertureWidth)
-		a.p2c.Add(a.remotePeers[aoertureIdx], weight)
+	for _, apertureIdx := range apertureIdxes {
+		weight := ring.Weight(apertureIdx, offset, apertureWidth)
+		a.p2c.Add(a.remotePeers[apertureIdx], weight)
 	}
 }
 
