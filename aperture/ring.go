@@ -25,7 +25,7 @@ func (r *Ring) Range(offset, width float64) int {
 	begin := r.Index(offset)
 	end := r.Index(math.Mod(offset+width, 1.0))
 
-	if width < 1.0 {
+	if width < floatOne {
 		if begin == end && width > r.unitWidth {
 			return r.size
 		} else if begin == end {
