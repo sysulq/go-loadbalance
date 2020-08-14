@@ -54,7 +54,10 @@ func (p *leastLoaded) Next() (interface{}, func(balancer.DoneInfo)) {
 		sc, backsc = p.items[a], p.items[b]
 
 		// choose the least loaded item based on inflight and weight
-		if float64(sc.inflight)*backsc.weight > float64(backsc.inflight)*sc.weight {
+		scInflight := atomic.LoadInt64(&sc.inflight)
+		backscInflight := atomic.LoadInt64(&backsc.inflight)
+
+		if float64(scInflight)*backsc.weight > float64(backscInflight)*sc.weight {
 			sc, backsc = backsc, sc
 		}
 	}

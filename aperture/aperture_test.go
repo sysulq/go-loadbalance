@@ -63,7 +63,7 @@ func TestAperture(t *testing.T) {
 
 		countMap := make(map[interface{}]int)
 
-		totalCount := 10000
+		totalCount := 5000
 		wg := sync.WaitGroup{}
 		wg.Add(totalCount)
 
@@ -87,10 +87,10 @@ func TestAperture(t *testing.T) {
 		for _, count := range countMap {
 			total += count
 		}
-		assert.Less(t, 2990, countMap["8"])
-		assert.Less(t, 2990, countMap["9"])
-		assert.Less(t, 2990, countMap["10"])
-		assert.Less(t, 990, countMap["11"])
+		assert.Less(t, totalCount*3/10-10, countMap["8"])
+		assert.Less(t, totalCount*3/10-10, countMap["9"])
+		assert.Less(t, totalCount*3/10-10, countMap["10"])
+		assert.Less(t, totalCount*1/10-10, countMap["11"])
 
 		assert.Equal(t, totalCount, total)
 	})
