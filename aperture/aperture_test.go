@@ -18,8 +18,9 @@ func TestAperture(t *testing.T) {
 		assert.Nil(t, item)
 	})
 
-	t.Run("1 item", func(t *testing.T) {
+	t.Run("1 client 1 server", func(t *testing.T) {
 		ll := aperture.New()
+		ll.SetLocalPeers(nil)
 		ll.SetLocalPeers([]string{"1"})
 		ll.SetRemotePeers([]interface{}{"8"})
 		ll.SetLocalPeerID("1")
@@ -29,7 +30,7 @@ func TestAperture(t *testing.T) {
 		assert.Equal(t, "8", item)
 	})
 
-	t.Run("3 items", func(t *testing.T) {
+	t.Run("3 client 3 server", func(t *testing.T) {
 		ll := aperture.New()
 		ll.SetLocalPeers([]string{"1", "2", "3"})
 		ll.SetRemotePeers([]interface{}{"8", "9", "10"})
@@ -92,5 +93,35 @@ func TestAperture(t *testing.T) {
 		assert.Less(t, 990, countMap["11"])
 
 		assert.Equal(t, totalCount, total)
+	})
+}
+
+func TestDynamic(t *testing.T) {
+	t.Run("1client-3client", func(t *testing.T) {
+		ll := aperture.New()
+		ll.SetLocalPeers([]string{"1"})
+		ll.SetRemotePeers([]interface{}{"8", "9", "10"})
+		ll.SetLocalPeerID("1")
+		ll.SetLogicalAperture(2)
+
+		assert.Equal(t, []int{0, 1, 2}, ll.(*aperture.Aperture).List())
+
+		ll.SetLocalPeers([]string{"1", "2", "3"})
+		assert.Equal(t, []int{0, 1}, ll.(*aperture.Aperture).List())
+
+	})
+
+	t.Run("3server-4server", func(t *testing.T) {
+		ll := aperture.New()
+		ll.SetLocalPeers([]string{"1", "2", "3"})
+		ll.SetRemotePeers([]interface{}{"8", "9", "10"})
+		ll.SetLocalPeerID("1")
+		ll.SetLogicalAperture(2)
+
+		assert.Equal(t, []int{0, 1}, ll.(*aperture.Aperture).List())
+
+		ll.SetRemotePeers([]interface{}{"1", "2", "3", "4"})
+		assert.Equal(t, []int{0, 1, 2}, ll.(*aperture.Aperture).List())
+
 	})
 }

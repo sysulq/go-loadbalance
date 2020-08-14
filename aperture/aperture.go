@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc/balancer"
 )
 
+// Aperture support map local peers to remote peers
+// to divide remote peers into subsets
+// to reduce the connections and separate services into small sets
 type Aperture struct {
 	localID         string
 	localPeers      []string
@@ -15,13 +18,17 @@ type Aperture struct {
 	remotePeers     []interface{}
 	logicalAperture int
 
-	p2c loadbalance.P2C
+	p2c           loadbalance.P2C
+	apertureIdxes []int
 }
 
 const (
+	// defaultLogicalAperture means the max logic aperture size
+	// to control the stability for aperture load balance algorithm
 	defaultLogicalAperture int = 12
 )
 
+// New returns an Apeture interface
 func New() loadbalance.Aperture {
 	return &Aperture{
 		logicalAperture: defaultLogicalAperture,
@@ -32,6 +39,7 @@ func New() loadbalance.Aperture {
 	}
 }
 
+// SetLogicalAperture sets the logical aperture size
 func (a *Aperture) SetLogicalAperture(width int) {
 	if width > 0 {
 		a.logicalAperture = width
@@ -39,11 +47,13 @@ func (a *Aperture) SetLogicalAperture(width int) {
 	}
 }
 
+// SetLocalPeerID sets the local peer id
 func (a *Aperture) SetLocalPeerID(id string) {
 	a.localID = id
 	a.rebuild()
 }
 
+// SetLocalPeers sets the local peers
 func (a *Aperture) SetLocalPeers(localPeers []string) {
 	a.localPeers = localPeers
 	for idx, local := range localPeers {
@@ -53,15 +63,24 @@ func (a *Aperture) SetLocalPeers(localPeers []string) {
 	a.rebuild()
 }
 
+// SetRemotePeers sets the remote peers
 func (a *Aperture) SetRemotePeers(remotePeers []interface{}) {
 	a.remotePeers = remotePeers
 	a.rebuild()
 }
 
+// Next returns the next selected item
 func (a *Aperture) Next() (interface{}, func(balancer.DoneInfo)) {
 	return a.p2c.Next()
 }
 
+// List returns the remote peers for the local peer id
+// NOTE: current for test/debug only
+func (a *Aperture) List() []int {
+	return a.apertureIdxes
+}
+
+// rebuild just rebuilds the aperture when any arguments changed
 func (a *Aperture) rebuild() {
 	if len(a.localPeers) == 0 {
 		return
@@ -87,15 +106,16 @@ func (a *Aperture) rebuild() {
 	offset := float64(idx) * apertureWidth
 
 	ring := NewRing(len(a.remotePeers))
-	apertureIdxes := ring.Slice(offset, apertureWidth)
-	a.p2c = leastloaded.New()
+	a.apertureIdxes = ring.Slice(offset, apertureWidth)
 
-	for _, apertureIdx := range apertureIdxes {
+	a.p2c = leastloaded.New()
+	for _, apertureIdx := range a.apertureIdxes {
 		weight := ring.Weight(apertureIdx, offset, apertureWidth)
 		a.p2c.Add(a.remotePeers[apertureIdx], weight)
 	}
 }
 
+// dApertureWidth calculates the actual aperture size base on logic aperture size
 func dApertureWidth(localWidth, remoteWidth float64, logicalAperture int) float64 {
 	unitWidth := localWidth
 	unitAperture := float64(logicalAperture) * remoteWidth
