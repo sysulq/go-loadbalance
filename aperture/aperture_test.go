@@ -12,14 +12,14 @@ import (
 
 func TestAperture(t *testing.T) {
 	t.Run("0 item", func(t *testing.T) {
-		ll := aperture.New()
+		ll := aperture.NewPeakEwmaAperture()
 		item, done := ll.Next()
 		done(balancer.DoneInfo{})
 		assert.Nil(t, item)
 	})
 
 	t.Run("1 client 1 server", func(t *testing.T) {
-		ll := aperture.New()
+		ll := aperture.NewLeastLoadedApeture()
 		ll.SetLocalPeers(nil)
 		ll.SetLocalPeers([]string{"1"})
 		ll.SetRemotePeers([]interface{}{"8"})
@@ -31,7 +31,7 @@ func TestAperture(t *testing.T) {
 	})
 
 	t.Run("3 client 3 server", func(t *testing.T) {
-		ll := aperture.New()
+		ll := aperture.NewLeastLoadedApeture()
 		ll.SetLocalPeers([]string{"1", "2", "3"})
 		ll.SetRemotePeers([]interface{}{"8", "9", "10"})
 		ll.SetLocalPeerID("1")
@@ -55,7 +55,7 @@ func TestAperture(t *testing.T) {
 	})
 
 	t.Run("count", func(t *testing.T) {
-		ll := aperture.New()
+		ll := aperture.NewLeastLoadedApeture()
 		ll.SetLocalPeers([]string{"1", "2", "3"})
 		ll.SetRemotePeers([]interface{}{"8", "9", "10", "11", "12"})
 		ll.SetLocalPeerID("1")
@@ -98,7 +98,7 @@ func TestAperture(t *testing.T) {
 
 func TestDynamic(t *testing.T) {
 	t.Run("1client-3client", func(t *testing.T) {
-		ll := aperture.New()
+		ll := aperture.NewLeastLoadedApeture()
 		ll.SetLocalPeers([]string{"1"})
 		ll.SetRemotePeers([]interface{}{"8", "9", "10"})
 		ll.SetLocalPeerID("1")
@@ -112,7 +112,7 @@ func TestDynamic(t *testing.T) {
 	})
 
 	t.Run("3server-4server", func(t *testing.T) {
-		ll := aperture.New()
+		ll := aperture.NewLeastLoadedApeture()
 		ll.SetLocalPeers([]string{"1", "2", "3"})
 		ll.SetRemotePeers([]interface{}{"8", "9", "10"})
 		ll.SetLocalPeerID("1")

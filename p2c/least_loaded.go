@@ -1,4 +1,4 @@
-package leastloaded
+package p2c
 
 import (
 	"math/rand"
@@ -22,7 +22,7 @@ type leastLoaded struct {
 	rand  *rand.Rand
 }
 
-func New() loadbalance.P2C {
+func NewLeastLoaded() loadbalance.P2C {
 	return &leastLoaded{
 		items: make([]*leastLoadedNode, 0),
 		rand:  rand.New(rand.NewSource(time.Now().Unix())),
@@ -49,8 +49,9 @@ func (p *leastLoaded) Next() (interface{}, func(balancer.DoneInfo)) {
 		p.mu.Unlock()
 
 		if b >= a {
-			b = b + 1
+			b++
 		}
+
 		sc, backsc = p.items[a], p.items[b]
 
 		// choose the least loaded item based on inflight and weight

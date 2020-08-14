@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/hnlq715/go-loadbalance"
-	"github.com/hnlq715/go-loadbalance/p2c/leastloaded"
+	"github.com/hnlq715/go-loadbalance/p2c"
 	"google.golang.org/grpc/balancer"
 )
 
@@ -28,14 +28,25 @@ const (
 	defaultLogicalAperture int = 12
 )
 
-// New returns an Apeture interface
-func New() loadbalance.Aperture {
+// NewLeastLoadedApeture returns an Apeture interface with least loaded p2c
+func NewLeastLoadedApeture() loadbalance.Aperture {
 	return &Aperture{
 		logicalAperture: defaultLogicalAperture,
 		localPeers:      make([]string, 0),
 		localPeersMap:   make(map[string]int),
 		remotePeers:     make([]interface{}, 0),
-		p2c:             leastloaded.New(),
+		p2c:             p2c.NewLeastLoaded(),
+	}
+}
+
+// NewPeakEwmaAperture returns an Apeture interface with pewma p2c
+func NewPeakEwmaAperture() loadbalance.Aperture {
+	return &Aperture{
+		logicalAperture: defaultLogicalAperture,
+		localPeers:      make([]string, 0),
+		localPeersMap:   make(map[string]int),
+		remotePeers:     make([]interface{}, 0),
+		p2c:             p2c.NewPeakEwma(),
 	}
 }
 
@@ -108,7 +119,7 @@ func (a *Aperture) rebuild() {
 	ring := NewRing(len(a.remotePeers))
 	a.apertureIdxes = ring.Slice(offset, apertureWidth)
 
-	a.p2c = leastloaded.New()
+	a.p2c = p2c.NewLeastLoaded()
 	for _, apertureIdx := range a.apertureIdxes {
 		weight := ring.Weight(apertureIdx, offset, apertureWidth)
 		a.p2c.Add(a.remotePeers[apertureIdx], weight)

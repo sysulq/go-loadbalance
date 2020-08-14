@@ -1,23 +1,23 @@
-package leastloaded_test
+package p2c_test
 
 import (
 	"testing"
 
-	"github.com/hnlq715/go-loadbalance/p2c/leastloaded"
+	"github.com/hnlq715/go-loadbalance/p2c"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/balancer"
 )
 
 func TestLeastLoaded(t *testing.T) {
 	t.Run("0 item", func(t *testing.T) {
-		ll := leastloaded.New()
+		ll := p2c.NewLeastLoaded()
 		item, done := ll.Next()
 		done(balancer.DoneInfo{})
 		assert.Nil(t, item)
 	})
 
 	t.Run("1 item", func(t *testing.T) {
-		ll := leastloaded.New()
+		ll := p2c.NewLeastLoaded()
 		ll.Add(1, 1)
 		item, done := ll.Next()
 		done(balancer.DoneInfo{})
@@ -25,7 +25,7 @@ func TestLeastLoaded(t *testing.T) {
 	})
 
 	t.Run("3 items", func(t *testing.T) {
-		ll := leastloaded.New()
+		ll := p2c.NewLeastLoaded()
 		ll.Add(1, 1)
 		ll.Add(2, 1)
 		ll.Add(3, 1)
@@ -52,7 +52,7 @@ func TestLeastLoaded(t *testing.T) {
 
 func TestLeastLoadedAbnormal(t *testing.T) {
 	t.Run("fixed inflight", func(t *testing.T) {
-		ll := leastloaded.New()
+		ll := p2c.NewLeastLoaded()
 		ll.Add(1, 1)
 		ll.Add(2, 1)
 		ll.Add(3, 1)
