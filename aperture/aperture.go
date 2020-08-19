@@ -12,7 +12,7 @@ import (
 // Aperture support map local peers to remote peers
 // to divide remote peers into subsets
 // to reduce the connections and separate services into small sets
-type Aperture struct {
+type aperture struct {
 	localID         string
 	localPeers      []string
 	localPeersMap   map[string]int
@@ -31,7 +31,7 @@ const (
 
 // NewLeastLoadedApeture returns an Apeture interface with least loaded p2c
 func NewLeastLoadedApeture() loadbalance.Aperture {
-	return &Aperture{
+	return &aperture{
 		logicalAperture: defaultLogicalAperture,
 		localPeers:      make([]string, 0),
 		localPeersMap:   make(map[string]int),
@@ -42,7 +42,7 @@ func NewLeastLoadedApeture() loadbalance.Aperture {
 
 // NewPeakEwmaAperture returns an Apeture interface with pewma p2c
 func NewPeakEwmaAperture() loadbalance.Aperture {
-	return &Aperture{
+	return &aperture{
 		logicalAperture: defaultLogicalAperture,
 		localPeers:      make([]string, 0),
 		localPeersMap:   make(map[string]int),
@@ -53,7 +53,7 @@ func NewPeakEwmaAperture() loadbalance.Aperture {
 
 // NewSmoothRoundrobin returns an Apeture interface with smooth roundrobin
 func NewSmoothRoundrobin() loadbalance.Aperture {
-	return &Aperture{
+	return &aperture{
 		logicalAperture: defaultLogicalAperture,
 		localPeers:      make([]string, 0),
 		localPeersMap:   make(map[string]int),
@@ -63,7 +63,7 @@ func NewSmoothRoundrobin() loadbalance.Aperture {
 }
 
 // SetLogicalAperture sets the logical aperture size
-func (a *Aperture) SetLogicalAperture(width int) {
+func (a *aperture) SetLogicalAperture(width int) {
 	if width > 0 {
 		a.logicalAperture = width
 		a.rebuild()
@@ -71,13 +71,13 @@ func (a *Aperture) SetLogicalAperture(width int) {
 }
 
 // SetLocalPeerID sets the local peer id
-func (a *Aperture) SetLocalPeerID(id string) {
+func (a *aperture) SetLocalPeerID(id string) {
 	a.localID = id
 	a.rebuild()
 }
 
 // SetLocalPeers sets the local peers
-func (a *Aperture) SetLocalPeers(localPeers []string) {
+func (a *aperture) SetLocalPeers(localPeers []string) {
 	a.localPeers = localPeers
 	for idx, local := range localPeers {
 		a.localPeersMap[local] = idx
@@ -87,24 +87,24 @@ func (a *Aperture) SetLocalPeers(localPeers []string) {
 }
 
 // SetRemotePeers sets the remote peers
-func (a *Aperture) SetRemotePeers(remotePeers []interface{}) {
+func (a *aperture) SetRemotePeers(remotePeers []interface{}) {
 	a.remotePeers = remotePeers
 	a.rebuild()
 }
 
 // Next returns the next selected item
-func (a *Aperture) Next() (interface{}, func(balancer.DoneInfo)) {
+func (a *aperture) Next() (interface{}, func(balancer.DoneInfo)) {
 	return a.picker.Next()
 }
 
 // List returns the remote peers for the local peer id
 // NOTE: current for test/debug only
-func (a *Aperture) List() []int {
+func (a *aperture) List() []int {
 	return a.apertureIdxes
 }
 
 // rebuild just rebuilds the aperture when any arguments changed
-func (a *Aperture) rebuild() {
+func (a *aperture) rebuild() {
 	if len(a.localPeers) == 0 {
 		return
 	}
@@ -128,7 +128,7 @@ func (a *Aperture) rebuild() {
 	apertureWidth := dApertureWidth(localWidth, remoteWidth, a.logicalAperture)
 	offset := float64(idx) * apertureWidth
 
-	ring := NewRing(len(a.remotePeers))
+	ring := newRing(len(a.remotePeers))
 	a.apertureIdxes = ring.Slice(offset, apertureWidth)
 
 	a.picker.Reset()

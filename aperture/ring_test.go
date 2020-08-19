@@ -8,7 +8,7 @@ import (
 )
 
 func TestRing(t *testing.T) {
-	r := NewRing(3)
+	r := newRing(3)
 
 	len := float64(3)
 	width := 1.0 / len
@@ -24,7 +24,7 @@ func TestRing(t *testing.T) {
 }
 
 func TestRing1(t *testing.T) {
-	r := NewRing(5)
+	r := newRing(5)
 
 	len := float64(3)
 	width := 1.0 / len
@@ -41,7 +41,7 @@ func TestRing1(t *testing.T) {
 }
 
 func TestRing2(t *testing.T) {
-	r := NewRing(5)
+	r := newRing(5)
 
 	len := float64(3)
 	width := 1.0 / len

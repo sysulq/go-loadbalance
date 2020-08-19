@@ -4,8 +4,8 @@ import (
 	"math"
 )
 
-// Ring maps the indices [0, `size`) uniformly around a coordinate space [0.0, 1.0).
-type Ring struct {
+// ring maps the indices [0, `size`) uniformly around a coordinate space [0.0, 1.0).
+type ring struct {
 	size      int
 	unitWidth float64
 }
@@ -15,15 +15,15 @@ const (
 	intOne   int     = 1
 )
 
-func NewRing(size int) *Ring {
-	return &Ring{
+func newRing(size int) *ring {
+	return &ring{
 		size:      size,
 		unitWidth: floatOne / float64(size),
 	}
 }
 
 // Range returns the total number of indices that [offset, offset + width) intersects with.
-func (r *Ring) Range(offset, width float64) int {
+func (r *ring) Range(offset, width float64) int {
 	begin := r.Index(offset)
 	end := r.Index(math.Mod(offset+width, 1.0))
 
@@ -59,7 +59,7 @@ func (r *Ring) Range(offset, width float64) int {
 }
 
 // Slice returns the indices where [offset, offset + width) intersects.
-func (r *Ring) Slice(offset, width float64) []int {
+func (r *ring) Slice(offset, width float64) []int {
 	seq := make([]int, 0)
 	i := r.Index(offset)
 	rr := r.Range(offset, width)
@@ -76,12 +76,12 @@ func (r *Ring) Slice(offset, width float64) []int {
 
 // Index returns the (zero-based) index between [0, `size`) which the
 // position `offset` maps to.
-func (r *Ring) Index(offset float64) int {
+func (r *ring) Index(offset float64) int {
 	return int(math.Floor(offset*float64(r.size))) % r.size
 }
 
 // Weight returns the ratio of the intersection between `index` and [offset, offset + width).
-func (r *Ring) Weight(index int, offset, width float64) float64 {
+func (r *ring) Weight(index int, offset, width float64) float64 {
 	ab := float64(index) * r.unitWidth
 	if ab+1 < offset+width {
 		ab++
