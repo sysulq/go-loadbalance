@@ -20,20 +20,14 @@ type Aperture interface {
 	SetRemotePeers([]interface{})
 }
 
-// P2C support p2c algorithm for load balance,
+// Picker supports multiple algorithms for load balance,
 // uses the ideas behind the "power of 2 choices"
 // to select two nodes from the underlying vector.
-type P2C interface {
+type Picker interface {
 	// Next returns next selected item.
 	Next() (interface{}, func(balancer.DoneInfo))
 	// Add a weighted item.
 	Add(interface{}, float64)
-}
-
-// RoundRobin support roundrobin algorithm for load balance
-type RoundRobin interface {
-	// Next returns next selected item.
-	Next() interface{}
-	// Add a weighted item.
-	Add(interface{}, int64)
+	// Reset this picker
+	Reset()
 }

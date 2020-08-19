@@ -5,6 +5,7 @@ import (
 
 	"github.com/hnlq715/go-loadbalance"
 	"github.com/hnlq715/go-loadbalance/p2c"
+	"github.com/hnlq715/go-loadbalance/roundrobin"
 	"google.golang.org/grpc/balancer"
 )
 
@@ -18,7 +19,7 @@ type Aperture struct {
 	remotePeers     []interface{}
 	logicalAperture int
 
-	p2c           loadbalance.P2C
+	picker        loadbalance.Picker
 	apertureIdxes []int
 }
 
@@ -35,7 +36,7 @@ func NewLeastLoadedApeture() loadbalance.Aperture {
 		localPeers:      make([]string, 0),
 		localPeersMap:   make(map[string]int),
 		remotePeers:     make([]interface{}, 0),
-		p2c:             p2c.NewLeastLoaded(),
+		picker:          p2c.NewLeastLoaded(),
 	}
 }
 
@@ -46,7 +47,18 @@ func NewPeakEwmaAperture() loadbalance.Aperture {
 		localPeers:      make([]string, 0),
 		localPeersMap:   make(map[string]int),
 		remotePeers:     make([]interface{}, 0),
-		p2c:             p2c.NewPeakEwma(),
+		picker:          p2c.NewPeakEwma(),
+	}
+}
+
+// NewSmoothRoundrobin returns an Apeture interface with smooth roundrobin
+func NewSmoothRoundrobin() loadbalance.Aperture {
+	return &Aperture{
+		logicalAperture: defaultLogicalAperture,
+		localPeers:      make([]string, 0),
+		localPeersMap:   make(map[string]int),
+		remotePeers:     make([]interface{}, 0),
+		picker:          roundrobin.NewSmoothRoundrobin(),
 	}
 }
 
@@ -82,7 +94,7 @@ func (a *Aperture) SetRemotePeers(remotePeers []interface{}) {
 
 // Next returns the next selected item
 func (a *Aperture) Next() (interface{}, func(balancer.DoneInfo)) {
-	return a.p2c.Next()
+	return a.picker.Next()
 }
 
 // List returns the remote peers for the local peer id
@@ -119,10 +131,10 @@ func (a *Aperture) rebuild() {
 	ring := NewRing(len(a.remotePeers))
 	a.apertureIdxes = ring.Slice(offset, apertureWidth)
 
-	a.p2c = p2c.NewLeastLoaded()
+	a.picker.Reset()
 	for _, apertureIdx := range a.apertureIdxes {
 		weight := ring.Weight(apertureIdx, offset, apertureWidth)
-		a.p2c.Add(a.remotePeers[apertureIdx], weight)
+		a.picker.Add(a.remotePeers[apertureIdx], weight)
 	}
 }
 

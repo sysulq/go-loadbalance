@@ -22,7 +22,7 @@ type leastLoaded struct {
 	rand  *rand.Rand
 }
 
-func NewLeastLoaded() loadbalance.P2C {
+func NewLeastLoaded() loadbalance.Picker {
 	return &leastLoaded{
 		items: make([]*leastLoadedNode, 0),
 		rand:  rand.New(rand.NewSource(time.Now().Unix())),
@@ -31,6 +31,10 @@ func NewLeastLoaded() loadbalance.P2C {
 
 func (p *leastLoaded) Add(item interface{}, weight float64) {
 	p.items = append(p.items, &leastLoadedNode{item: item, weight: weight})
+}
+
+func (p *leastLoaded) Reset() {
+	p.items = p.items[:0]
 }
 
 func (p *leastLoaded) Next() (interface{}, func(balancer.DoneInfo)) {

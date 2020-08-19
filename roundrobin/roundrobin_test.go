@@ -9,10 +9,20 @@ import (
 func TestSW_Next(t *testing.T) {
 	w := NewSmoothRoundrobin()
 
-	assert.Nil(t, w.Next())
+	s, _ := w.Next()
+	assert.Nil(t, s)
 
 	w.Add("server1", 5)
-	assert.Equal(t, "server1", w.Next().(string))
+	s, _ = w.Next()
+	assert.Equal(t, "server1", s.(string))
+
+	w.Reset()
+	s, _ = w.Next()
+	assert.Nil(t, s)
+
+	w.Add("server1", 5)
+	s, _ = w.Next()
+	assert.Equal(t, "server1", s.(string))
 
 	w.Add("server2", 2)
 	w.Add("server3", 3)
@@ -20,8 +30,8 @@ func TestSW_Next(t *testing.T) {
 	results := make(map[string]int)
 
 	for i := 0; i < 1000; i++ {
-		s := w.Next().(string)
-		results[s]++
+		s, _ := w.Next()
+		results[s.(string)]++
 	}
 
 	if results["server1"] != 500 || results["server2"] != 200 || results["server3"] != 300 {

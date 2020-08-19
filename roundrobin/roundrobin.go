@@ -1,6 +1,11 @@
 package roundrobin
 
-import "github.com/hnlq715/go-loadbalance"
+import (
+	"math"
+
+	"github.com/hnlq715/go-loadbalance"
+	"google.golang.org/grpc/balancer"
+)
 
 // smoothRoundrobinNode is a wrapped weighted item.
 type smoothRoundrobinNode struct {
@@ -26,28 +31,34 @@ type smoothRoundrobin struct {
 // among peers.
 // In case of { 5, 1, 1 } weights this gives the following sequence of
 // current_weight's: (a, a, b, a, c, a, a)
-func NewSmoothRoundrobin() loadbalance.RoundRobin {
+func NewSmoothRoundrobin() loadbalance.Picker {
 	return &smoothRoundrobin{}
 }
 
 // Add a weighted server.
-func (w *smoothRoundrobin) Add(item interface{}, weight int64) {
-	weighted := &smoothRoundrobinNode{Item: item, Weight: weight, EffectiveWeight: weight}
+func (w *smoothRoundrobin) Add(item interface{}, weight float64) {
+	wt := int64(math.Floor(weight))
+	weighted := &smoothRoundrobinNode{Item: item, Weight: wt, EffectiveWeight: wt}
 	w.items = append(w.items, weighted)
 	w.n++
 }
 
+func (w *smoothRoundrobin) Reset() {
+	w.items = w.items[:0]
+	w.n = 0
+}
+
 // Next returns next selected server.
-func (w *smoothRoundrobin) Next() interface{} {
+func (w *smoothRoundrobin) Next() (interface{}, func(balancer.DoneInfo)) {
 	if w.n == 0 {
-		return nil
+		return nil, func(balancer.DoneInfo) {}
 	}
 
 	if w.n == 1 {
-		return w.items[0].Item
+		return w.items[0].Item, func(balancer.DoneInfo) {}
 	}
 
-	return nextSmoothWeighted(w.items).Item
+	return nextSmoothWeighted(w.items).Item, func(balancer.DoneInfo) {}
 }
 
 // nextSmoothWeighted selects the best node through the smooth weighted roundrobin .

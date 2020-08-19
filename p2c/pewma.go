@@ -64,7 +64,7 @@ type pewma struct {
 	rand  *rand.Rand
 }
 
-func NewPeakEwma() loadbalance.P2C {
+func NewPeakEwma() loadbalance.Picker {
 	return &pewma{
 		items: make([]*peakEwmaNode, 0),
 		rand:  rand.New(rand.NewSource(time.Now().Unix())),
@@ -73,6 +73,13 @@ func NewPeakEwma() loadbalance.P2C {
 
 func (p *pewma) Add(item interface{}, weight float64) {
 	p.items = append(p.items, &peakEwmaNode{item: item, latency: newPEWMA(), weight: weight})
+}
+
+func (p *pewma) Reset() {
+	*p = pewma{
+		items: make([]*peakEwmaNode, 0),
+		rand:  rand.New(rand.NewSource(time.Now().Unix())),
+	}
 }
 
 func (p *pewma) Next() (interface{}, func(balancer.DoneInfo)) {

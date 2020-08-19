@@ -19,6 +19,18 @@ func TestAperture(t *testing.T) {
 	})
 
 	t.Run("1 client 1 server", func(t *testing.T) {
+		ll := aperture.NewSmoothRoundrobin()
+		ll.SetLocalPeers(nil)
+		ll.SetLocalPeers([]string{"1"})
+		ll.SetRemotePeers([]interface{}{"8"})
+		ll.SetLocalPeerID("1")
+
+		item, done := ll.Next()
+		done(balancer.DoneInfo{})
+		assert.Equal(t, "8", item)
+	})
+
+	t.Run("1 client 1 server", func(t *testing.T) {
 		ll := aperture.NewLeastLoadedApeture()
 		ll.SetLocalPeers(nil)
 		ll.SetLocalPeers([]string{"1"})
