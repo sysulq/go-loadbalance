@@ -37,4 +37,8 @@ func TestSW_Next(t *testing.T) {
 	if results["server1"] != 500 || results["server2"] != 200 || results["server3"] != 300 {
 		t.Error("the algorithm is wrong")
 	}
+
+	w.(*smoothRoundrobin).items[0].EffectiveWeight = w.(*smoothRoundrobin).items[0].CurrentWeight - 1
+	s, _ = w.Next()
+	assert.Equal(t, "server3", s.(string))
 }

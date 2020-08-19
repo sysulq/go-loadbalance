@@ -11,6 +11,7 @@ import (
 func TestLeastLoaded(t *testing.T) {
 	t.Run("0 item", func(t *testing.T) {
 		ll := p2c.NewLeastLoaded()
+		ll.Reset()
 		item, done := ll.Next()
 		done(balancer.DoneInfo{})
 		assert.Nil(t, item)

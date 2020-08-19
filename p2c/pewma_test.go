@@ -50,6 +50,7 @@ func TestPeakEwma(t *testing.T) {
 
 	t.Run("1 item", func(t *testing.T) {
 		ll := NewPeakEwma()
+		ll.Reset()
 		ll.Add(1, 1)
 		item, done := ll.Next()
 		done(balancer.DoneInfo{})
