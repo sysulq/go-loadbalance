@@ -64,9 +64,10 @@ func TestPeakEwma(t *testing.T) {
 
 		countMap := make(map[interface{}]int)
 
-		totalCount := 10000
+		totalCount := 1000
 		for i := 0; i < totalCount; i++ {
 			item, done := ll.Next()
+			time.Sleep(time.Millisecond)
 			done(balancer.DoneInfo{})
 
 			countMap[item]++
@@ -75,7 +76,7 @@ func TestPeakEwma(t *testing.T) {
 		total := 0
 		for _, count := range countMap {
 			total += count
-			assert.Less(t, totalCount/3-1800, count)
+			assert.Less(t, totalCount/3-2000, count)
 		}
 
 		assert.Equal(t, totalCount, total)
