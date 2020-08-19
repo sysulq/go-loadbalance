@@ -29,3 +29,11 @@ type P2C interface {
 	// Add a weighted item.
 	Add(interface{}, float64)
 }
+
+// RoundRobin support roundrobin algorithm for load balance
+type RoundRobin interface {
+	// Next returns next selected item.
+	Next() interface{}
+	// Add a weighted item.
+	Add(interface{}, int64)
+}
