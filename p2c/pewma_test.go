@@ -75,7 +75,7 @@ func TestPeakEwma(t *testing.T) {
 		total := 0
 		for _, count := range countMap {
 			total += count
-			assert.Less(t, totalCount/3-2000, count)
+			assert.Less(t, totalCount/3-1800, count)
 		}
 
 		assert.Equal(t, totalCount, total)
