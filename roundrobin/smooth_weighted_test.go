@@ -4,13 +4,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/balancer"
 )
 
 func TestSW_Next(t *testing.T) {
 	w := NewSmoothRoundrobin()
 
-	s, _ := w.Next()
+	s, done := w.Next()
 	assert.Nil(t, s)
+	done(balancer.DoneInfo{})
 
 	w.Add("server1", 5)
 	s, _ = w.Next()

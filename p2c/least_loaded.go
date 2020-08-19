@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hnlq715/go-loadbalance"
+	"github.com/hnlq715/go-loadbalance/internal"
 	"google.golang.org/grpc/balancer"
 )
 
@@ -42,7 +43,7 @@ func (p *leastLoaded) Next() (interface{}, func(balancer.DoneInfo)) {
 
 	switch len(p.items) {
 	case 0:
-		return nil, func(balancer.DoneInfo) {}
+		return nil, internal.EmptyDoneFunc
 	case 1:
 		sc = p.items[0]
 	default:

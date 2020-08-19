@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/hnlq715/go-loadbalance"
+	"github.com/hnlq715/go-loadbalance/internal"
 	"google.golang.org/grpc/balancer"
 )
 
@@ -51,14 +52,14 @@ func (w *smoothRoundrobin) Reset() {
 // Next returns next selected server.
 func (w *smoothRoundrobin) Next() (interface{}, func(balancer.DoneInfo)) {
 	if w.n == 0 {
-		return nil, func(balancer.DoneInfo) {}
+		return nil, internal.EmptyDoneFunc
 	}
 
 	if w.n == 1 {
-		return w.items[0].Item, func(balancer.DoneInfo) {}
+		return w.items[0].Item, internal.EmptyDoneFunc
 	}
 
-	return nextSmoothWeighted(w.items).Item, func(balancer.DoneInfo) {}
+	return nextSmoothWeighted(w.items).Item, internal.EmptyDoneFunc
 }
 
 // nextSmoothWeighted selects the best node through the smooth weighted roundrobin .
