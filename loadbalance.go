@@ -20,6 +20,27 @@ type Aperture interface {
 	SetRemotePeers([]interface{})
 }
 
+// SetInfo contains region, zone and set
+type SetInfo struct {
+	// Name, app name defined as set
+	Name string
+	// Region, like `bj(beijing)` or `sh(shanghai)`
+	Region string
+	// UnitName, unit name defined as subsets
+	UnitName string
+}
+
+// Set supports divide remote peers into subsets
+// based on region, zone and set info
+type Set interface {
+	// Next returns next selected item.
+	Next() (interface{}, func(balancer.DoneInfo))
+	// Add a weighted item with set info.
+	Add(interface{}, float64, SetInfo)
+	// Reset this picker
+	Reset()
+}
+
 // Picker supports multiple algorithms for load balance,
 // uses the ideas behind the "power of 2 choices"
 // to select two nodes from the underlying vector.
